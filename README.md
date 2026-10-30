@@ -1,143 +1,84 @@
-# StudyVault - Personal Study Notes & Document Storage
+# StudyVault – Personal Study Notes & Document Storage
 
-StudyVault is a modern, responsive personal digital library and cloud document storage web application built with **React**, **TypeScript**, **Tailwind CSS**, and **Firebase** (Cloud Firestore, Firebase Cloud Storage, and Firebase Authentication).
+> **Your Notes. Our Priority.**
 
----
-
-## 1. Features
-
-### 📁 Unlimited Folder & Subject Hierarchy
-- Organize materials subject-wise (e.g. *M.Pharm*, *B.Pharm*), chapter-wise (e.g. *Pharmaceutics*, *Drug Delivery System*), and unit-wise (*Unit 1 - Preformulation*, *Unit 2 - Modified Release*).
-- Create, rename, move, and color-tag folders.
-- Interactive breadcrumb navigation (`My Library > M.Pharm > Pharmaceutics > Unit 1`).
-- Expandable folder tree in the left sidebar.
-
-### 📄 Multi-Format Document Management
-- Supports **PDF**, **DOC/DOCX**, **PPT/PPTX**, **XLS/XLSX**, **Images (PNG, JPG, JPEG)**, and **TXT**.
-- Multi-file drag-and-drop uploads directly into any open folder.
-- Real-time upload progress indicators (0% to 100%).
-- Star/favorite notes and folders for quick access.
-- Move files between folders, rename, download original files.
-- Bulk selection to delete, move, or star multiple documents.
-
-### 🔍 Integrated PDF Viewer & Document Previews
-- Open PDFs directly inside the website without downloading.
-- Zoom in / Zoom out (50% to 250%) and zoom reset.
-- 90° Clockwise document rotation.
-- Full-screen reader mode (`requestFullscreen`).
-- Download original PDF button and "Open in new tab" link.
-- Image zoom, pan, and text document syntax viewer.
-
-### ⚡ Global Search System
-- Instant live search across all folder names, subjects, chapter titles, document names, and PDFs.
-- Click any search result to jump straight to the file or folder.
-
-### 🛡️ Authentication & Cloud Security
-- Firebase Authentication with Google Sign-in and Email/Password support.
-- Zero-trust Firestore Security Rules enforcing Attribute-Based Access Control (`resource.data.userId == request.auth.uid`).
-- Strict user data isolation: each student can only view, query, and modify their own documents.
-
-### 💾 Data Safety, Quota Meter & JSON Backup
-- Dynamic storage quota meter (tracks bytes used vs. Firebase Spark free tier).
-- Categorized storage breakdown (PDFs, Docs, Slides, Sheets, Images).
-- **One-click JSON Library Backup**: download a complete local snapshot of your catalog.
-- **JSON Backup Restore**: upload a backup to restore folders and notes metadata.
-- Recycle Bin (Trash) with individual restore and permanent empty trash options.
+StudyVault is a multi-page personal study notes and document vault engineered for students, researchers, and lifelong learners. It provides hierarchical folder organization (Subjects, Chapters, Units), document management (PDF, Word, Slides, Spreadsheets, Images, and Text notes), in-browser document previews, trash recovery, and full JSON data backup/restore.
 
 ---
 
-## 2. Project Architecture
+## 📁 Architecture & Multi-Page Layout
 
-```
-├── firebase-applet-config.json    # Firebase project credentials & database IDs
-├── firebase-blueprint.json        # Data schema intermediate representation
-├── firestore.rules                # Hardened Firestore ABAC security rules
-├── security_spec.md               # Threat model & security specifications
-├── src/
-│   ├── components/
-│   │   ├── auth/AuthModal.tsx                  # Google & Email/Password sign-in
-│   │   ├── dashboard/DashboardView.tsx         # Welcome banner, metrics & quick access
-│   │   ├── layout/Navbar.tsx                   # Search, theme toggle, new actions & user menu
-│   │   ├── layout/Sidebar.tsx                  # Navigation links & expandable folder tree
-│   │   ├── library/LibraryView.tsx             # Breadcrumbs, grid/list view, drag-and-drop
-│   │   ├── modals/
-│   │   │   ├── CreateFolderModal.tsx           # Subject & subfolder creation with color picker
-│   │   │   ├── UploadModal.tsx                 # Multi-file uploader with progress bars
-│   │   │   ├── RenameModal.tsx                 # Folder & file rename
-│   │   │   ├── MoveModal.tsx                   # Destination picker for single/bulk moves
-│   │   │   └── ConfirmDeleteModal.tsx          # Safe trash & permanent deletion dialog
-│   │   ├── settings/SettingsBackupView.tsx     # Quota breakdown, JSON export & restore
-│   │   ├── trash/TrashView.tsx                 # Recycle bin & restore management
-│   │   └── viewer/
-│   │       ├── PdfViewerModal.tsx              # Integrated PDF viewer with zoom & fullscreen
-│   │       └── DocPreviewModal.tsx             # Image, text, and office document previews
-│   ├── context/
-│   │   ├── AuthContext.tsx                     # Auth provider & guest scholar mode
-│   │   └── LibraryContext.tsx                  # Real-time Firestore sync & Storage uploads
-│   ├── lib/
-│   │   └── firebase.ts                         # Firebase SDK init & error handling
-│   ├── types/index.ts                          # TypeScript models & schemas
-│   └── utils/
-│       ├── fileHelpers.ts                      # Byte formatting, breadcrumbs & categories
-│       └── fileHelpers.test.ts                 # Unit tests (node:test)
+In strict accordance with the project requirements, StudyVault is built as a pure **multi-page website** where each page is an independent HTML file containing its own embedded HTML structure, CSS `<style>`, and Vanilla JavaScript `<script>`:
+
+```text
+StudyVault/
+│
+├── index.html             # Page 1: Dashboard with live metrics, quick folders, and recent documents
+├── library.html           # Page 2: My Library with unlimited nested folders, drag-and-drop, and previewer
+├── trash.html             # Page 3: Trash with restore individual/all and permanent delete confirmation
+├── settings.html          # Page 4: Settings & Backup with storage quota meter and JSON export/restore
+│
+├── assets/
+│   ├── studyvault-logo.svg    # Vector StudyVault logo
+│   ├── studyvault-logo.png    # Official StudyVault logo PNG asset
+│   └── logo-renderer.html     # High-resolution rendering canvas
+│
+└── README.md              # Project documentation and deployment guide
 ```
 
 ---
 
-## 3. Local Setup Instructions
+## 🚀 Key Features
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### 1. Dashboard (`index.html`)
+- **Live Vault Statistics**: Total Folders, Total Documents, Starred Notes, and Storage Quota Meter.
+- **Quick Access Folders**: Color-coded cards for quick navigation directly to subject and chapter folders.
+- **Recently Added Documents**: Comprehensive table with document badges, sizes, timestamps, and direct preview modals.
+- **Global Live Search**: Live search input with keyboard shortcut (`Ctrl+K`) that searches across folders and documents in real time.
 
-2. **Verify Firebase Configuration:**
-   Ensure `firebase-applet-config.json` contains your Firebase project credentials:
-   ```json
-   {
-     "projectId": "your-project-id",
-     "appId": "your-app-id",
-     "apiKey": "your-api-key",
-     "authDomain": "your-project-id.firebaseapp.com",
-     "firestoreDatabaseId": "your-database-id",
-     "storageBucket": "your-project-id.firebasestorage.app"
-   }
-   ```
+### 2. My Library (`library.html`)
+- **Unlimited Folder Hierarchy**: Multi-level nested folder creation (`Subject` → `Chapter` → `Unit` → `Topic`).
+- **Color Labeling**: 8 distinct color palettes (Indigo, Emerald, Amber, Rose, Purple, Sky, Cyan, Slate).
+- **Folder Management**: Rename, Move (with cycle-prevention logic), and Delete to Trash.
+- **Document Upload**:
+  - Drag-and-drop file upload zone.
+  - Multi-file selection support for PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, PNG, JPG, JPEG, and TXT.
+- **Bulk Actions**: Select individual files or Select All to perform bulk starring, bulk moving, bulk downloading, and bulk deleting to trash.
+- **Full Document Viewer**:
+  - PDF preview with zoom (50% to 250%), 90-degree rotation, fullscreen, and download original.
+  - High-res diagram/image preview with zoom and download.
+  - Formatted text/code viewer.
 
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:3000` in your web browser.
+### 3. Trash & Recovery (`trash.html`)
+- **Safe Recovery**: View deleted folders and documents with original folder location and timestamp.
+- **Individual & Bulk Restore**: One-click restore back to the original folder location.
+- **Permanent Deletion**: Secure modal confirmation before permanently removing items.
+- **Empty Trash**: Wipe deleted files to reclaim storage quota.
 
-4. **Run unit tests:**
-   ```bash
-   npx tsx --test src/utils/fileHelpers.test.ts
-   ```
+### 4. Settings & Backup (`settings.html`)
+- **Storage Quota Analytics**: Live stacked visual bar and categorized cards (PDF, Word, Presentations, Spreadsheets, Images, Notes).
+- **Download JSON Backup**: Full database export (`studyvault-backup-YYYY-MM-DD.json`) including folders, documents, metadata, and settings.
+- **Upload & Restore JSON**: Instant verification and restoration of previous study vault backups.
+- **User Profile**: Custom scholar name, academic email, institution, and customizable storage quota tiers (100 MB up to 1 GB).
+- **Vault Maintenance**: Reset to sample academic vault or clear data.
 
 ---
 
-## 4. Online Deployment Instructions
+## 🛠️ Running & Deploying the Website
 
-### Deploying to Firebase Hosting
-1. Install the Firebase CLI:
-   ```bash
-   npm install -g firebase-tools
-   ```
-2. Login and initialize hosting:
-   ```bash
-   firebase login
-   firebase init hosting
-   ```
-   - Set public directory to `dist`
-   - Configure as single-page app: `Yes`
-3. Build and deploy:
-   ```bash
-   npm run build
-   firebase deploy --only hosting,firestore:rules
-   ```
+Because StudyVault is built using standard HTML5, CSS3, and Vanilla JavaScript, it can be run using any web server or static host:
 
-### Deploying to Cloud Run / Vercel / Netlify
-1. Run `npm run build` to generate production assets in `/dist`.
-2. Push your repository to GitHub or Google Cloud Build.
-3. Configure environment variables and deploy.
+### Local Development
+```bash
+# Run with Vite dev server (on port 3000)
+npm run dev
+```
+
+### Static Hosting / Deployment
+Deploy the files directly to:
+- **Firebase Hosting**:
+  ```bash
+  firebase init hosting
+  firebase deploy
+  ```
+- **GitHub Pages**, **Netlify**, or **Vercel**: Simply upload or push the repository root. All separate HTML pages (`index.html`, `library.html`, `trash.html`, `settings.html`) and assets are served directly.
